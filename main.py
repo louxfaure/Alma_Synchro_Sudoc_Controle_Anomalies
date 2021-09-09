@@ -12,7 +12,7 @@ import AlmaSru
 import AlmaApi
 import mail
 
-SERVICE = "Alma SUDOC Contrôle des anomalies"
+SERVICE = "Alma_SUDOC_Controle_des_anomalies"
 ILN = '497'
 INSTANCE = 'Test'
 INSTITUTIONS_LIST = { 'BXSA' : '330009999' }
@@ -20,7 +20,7 @@ TIME_DELTA = 4
 LIST_ERROR_ADM = []
 
 #On initialise le logger
-logs.init_logs(os.getenv('LOGS_PATH'),SERVICE,'DEBUG')
+logs.init_logs(os.getenv('LOGS_PATH'),SERVICE,'INFO')
 logger = logging.getLogger(SERVICE)
 
 date_traitement = date.today() - timedelta(days=TIME_DELTA)
