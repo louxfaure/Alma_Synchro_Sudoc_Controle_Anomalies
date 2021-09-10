@@ -26,7 +26,7 @@ logger = logging.getLogger(SERVICE)
 date_traitement = date.today() - timedelta(days=TIME_DELTA)
 logger.debug(date_traitement)
 for institution, rcr in INSTITUTIONS_LIST.items():
-    logger.debug("{} --> {}".format(institution,rcr))
+    logger.info("{} --> {}".format(institution,rcr))
     # On récupère la clef d'API
     api_key = ""
     if INSTANCE == 'Test' :
@@ -48,7 +48,7 @@ for institution, rcr in INSTITUTIONS_LIST.items():
                 LIST_ERROR_ADM.append(" {} :: Portfolio inconnu ou service indisponibble :: {}".format(institution,result.error_msg))
                 continue
             mmsid = result.get_mmsId()
-            logger.debug(mmsid)
+            logger.info(mmsid)
             # On regarde si l'erreur n'a pas déjà été signalé dans Alma
             record = AlmaApi.AlmaRecords(api_key,'EU',SERVICE)
             status_check_reminder, checkreminder = record.check_reminder(mmsid,erreur['categorie'])
