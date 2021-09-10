@@ -16,7 +16,7 @@ SERVICE = "Alma_SUDOC_Controle_des_anomalies"
 ILN = '497'
 INSTANCE = 'Test'
 INSTITUTIONS_LIST = { 'BXSA' : '330009999' }
-TIME_DELTA = 4
+TIME_DELTA = 1
 LIST_ERROR_ADM = []
 
 #On initialise le logger
