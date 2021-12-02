@@ -16,7 +16,7 @@ class ErreursSudoc(object):
 
     def __init__(self,iln,rcr,date_traitement,service=__name__):
         self.logger = logging.getLogger(service)
-        self.url = "https://www.sudoc.fr/services/generic/?servicekey=DynamicSql&requete=%20CALLSTORED%20%20=%20alma;@param1@={};@param2@={}&format=application/xml".format(iln,rcr)
+        self.url = "https://www.sudoc.fr/services/generic/?servicekey=Alma_Synthese&iln={}&rcr={}&format=application/xml".format(iln,rcr)
         self.index = -1
         self.errors_list = [{'code_abes' : 'Lien erroné',
                             'pattern' : 'Lien .{9} erroné',
