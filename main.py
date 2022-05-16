@@ -20,7 +20,7 @@ INSTITUTIONS_LIST = {
                         'UBM' : '335229909',
                         'IEP' : '335229907' 
                         }
-TIME_DELTA = 5
+TIME_DELTA = 1
 LIST_ERROR_ADM = []
 
 #On initialise le logger
