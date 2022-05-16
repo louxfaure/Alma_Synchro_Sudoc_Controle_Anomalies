@@ -65,6 +65,12 @@ class ErreursSudoc(object):
                             'note' : '',
                             'envoi_admin' : False,
                             'envoi_reseau' : False,
+                            'categorie' : ''},
+                            {'code_abes' : 'Notice protégée en écriture',
+                            'pattern' : 'Cette notice d&apos;exemplaire est protégée',
+                            'note' : '',
+                            'envoi_admin' : True,
+                            'envoi_reseau' : False,
                             'categorie' : ''}
                 ]
 

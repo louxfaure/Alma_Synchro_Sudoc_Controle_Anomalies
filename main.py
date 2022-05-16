@@ -13,14 +13,18 @@ import AlmaApi
 import mail
 
 SERVICE = "Alma_SUDOC_Controle_des_anomalies"
-ILN = '497'
-INSTANCE = 'Test'
-INSTITUTIONS_LIST = { 'BXSA' : '330009999' }
-TIME_DELTA = 1
+ILN = '15'
+INSTANCE = 'Prod'
+INSTITUTIONS_LIST = {   
+                        'UB' : '335229910',
+                        'UBM' : '335229909',
+                        'IEP' : '335229907' 
+                        }
+TIME_DELTA = 5
 LIST_ERROR_ADM = []
 
 #On initialise le logger
-logs.init_logs(os.getenv('LOGS_PATH'),SERVICE,'INFO')
+logs.init_logs(os.getenv('LOGS_PATH'),SERVICE,'DEBUG')
 logger = logging.getLogger(SERVICE)
 
 date_traitement = date.today() - timedelta(days=TIME_DELTA)
@@ -43,8 +47,8 @@ for institution, rcr in INSTITUTIONS_LIST.items():
         # Si l'erreur est à signaler aux catalogeurs on ajoute un reminder à la notice Alma
         if erreur["envoi_reseau"] :
             # On récupère le MMSID
-            # logger.debug(erreur["portfolio"][-16:])
-            result = AlmaSru.AlmaSru(erreur["portfolio"][-16:], 'alma.portfolio_pid',institution = institution,service= SERVICE,instance=INSTANCE)
+            logger.debug(erreur["portfolio"][-17:])
+            result = AlmaSru.AlmaSru(erreur["portfolio"][-17:], 'alma.portfolio_pid',institution = institution,service= SERVICE,instance=INSTANCE)
             if not result.status :
                 logger.error(" {} :: Portfolio inconnu ou service indisponibble :: {}".format(institution,result.error_msg))
                 LIST_ERROR_ADM.append(" {} :: Portfolio inconnu ou service indisponibble :: {}".format(institution,result.error_msg))
@@ -70,8 +74,9 @@ for institution, rcr in INSTITUTIONS_LIST.items():
             logger.info("{} :: NOTE CREE AVEC SUCCES :: {} ".format(mmsid,erreur['code_abes']))
         else :
             logger.info("{} :: NON SIGNALEE AU RESEAU :: {} ".format(erreur["portfolio"][-16:],erreur['code_abes']))
+            LIST_ERROR_ADM.append(" {} :: {} :: {}".format(institution, erreur['code_abes'] , erreur['note']))
 # Envoi du rapport d'erreur à l'administrateur
 if len(LIST_ERROR_ADM) > 0 :
     msg = mail.Mail()
-    msg.envoie("os.getenv('ADMIN_MAIL')","os.getenv('ADMIN_MAIL')","[{}] : erreurs rencontrées".format(SERVICE),"\n".join(LIST_ERROR_ADM))
+    msg.envoie(os.getenv('ADMIN_MAIL'),os.getenv('ADMIN_MAIL'),"[{}] : erreurs rencontrées".format(SERVICE),"\n".join(LIST_ERROR_ADM))
     
