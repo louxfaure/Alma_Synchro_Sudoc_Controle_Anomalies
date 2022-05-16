@@ -76,7 +76,8 @@ for institution, rcr in INSTITUTIONS_LIST.items():
             logger.info("{} :: NON SIGNALEE AU RESEAU :: {} ".format(erreur["portfolio"][-16:],erreur['code_abes']))
             LIST_ERROR_ADM.append(" {} :: {} :: {}".format(institution, erreur['code_abes'] , erreur['note']))
 # Envoi du rapport d'erreur à l'administrateur
+msg = mail.Mail()
 if len(LIST_ERROR_ADM) > 0 :
-    msg = mail.Mail()
     msg.envoie(os.getenv('ADMIN_MAIL'),os.getenv('ADMIN_MAIL'),"[{}] : erreurs rencontrées".format(SERVICE),"\n".join(LIST_ERROR_ADM))
-    
+else :
+    msg.envoie(os.getenv('ADMIN_MAIL'),os.getenv('ADMIN_MAIL'),"[{}] : service lancé avec succés".format(SERVICE),"Tudo bem\n" )
