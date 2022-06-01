@@ -50,8 +50,9 @@ class AlmaSru(object):
             searchQuery += '='
             searchQuery += query
         if not noticesSuprr:
-            searchQuery += ' and alma.mms_tagSuppressed=false'
-        return urllib.parse.quote(searchQuery)
+            searchQuery += '&alma.mms_tagSuppressed=false'
+        # return urllib.parse.quote(searchQuery)
+        return searchQuery
 
     def sru_request(self, reponseFormat='marcxml',noticesSuppr=False, complex_query=False):
         url=self.fullurl(self.query,reponseFormat, self.index,noticesSuppr,complex_query)

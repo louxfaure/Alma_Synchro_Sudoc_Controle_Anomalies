@@ -46,12 +46,18 @@ for institution, rcr in INSTITUTIONS_LIST.items():
         logger.debug(erreur)
         # Si l'erreur est à signaler aux catalogeurs on ajoute un reminder à la notice Alma
         if erreur["envoi_reseau"] :
-            # On récupère le MMSID
-            logger.debug(erreur["portfolio"][-17:])
-            result = AlmaSru.AlmaSru(erreur["portfolio"][-17:], 'alma.portfolio_pid',institution = institution,service= SERVICE,instance=INSTANCE)
+            # On récupère l'identifiant su portfolio
+            pid_extract = re.search('oai.alma..*?:(.*)', erreur["portfolio"], re.IGNORECASE)
+            if not pid_extract :
+                logger.error(" {} :: Impossible d'extraire le PID dans la chaine :: {}".format(institution,erreur["portfolio"]))
+                LIST_ERROR_ADM.append(" {} :: Impossible d'extraire le PID dans la chaine :: {}".format(institution,erreur["portfolio"]))
+                continue
+            pid = pid_extract.group(1)
+            logger.debug(pid)
+            result = AlmaSru.AlmaSru(pid, 'alma.portfolio_pid',institution = institution,service= SERVICE,instance=INSTANCE)
             if not result.status :
-                logger.error(" {} :: Portfolio inconnu ou service indisponibble :: {}".format(institution,result.error_msg))
-                LIST_ERROR_ADM.append(" {} :: Portfolio inconnu ou service indisponibble :: {}".format(institution,result.error_msg))
+                logger.error(" {} :: Portfolio inconnu ou service indisponibble :: {} :: {}".format(institution,erreur["portfolio"],result.error_msg))
+                LIST_ERROR_ADM.append(" {} :: Portfolio inconnu ou service indisponibble :: {} :: {}".format(institution,erreur["portfolio"],result.error_msg))
                 continue
             mmsid = result.get_mmsId()
             logger.debug(mmsid)
