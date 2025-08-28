@@ -10,9 +10,13 @@ import logs
 import ErreursSudoc
 import AlmaSru
 import AlmaApi
-import mail
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+from email.mime.base import MIMEBase
+from email import encoders
 
-SERVICE = "Alma_SUDOC_Controle_des_anomalies"
+SERVICE = "Alma_SUDOC_Controle_des_anomalies_de_Synchro"
 ILN = '15'
 INSTANCE = 'Prod'
 INSTITUTIONS_LIST = {   
@@ -23,9 +27,42 @@ INSTITUTIONS_LIST = {
 TIME_DELTA = 1
 LIST_ERROR_ADM = []
 
+# Email configuration
+SMTP_SERVER = os.getenv("SMTP_SERVER_UB")
+SMTP_PORT = int(os.getenv("SMTP_PORT_UB", 587))
+EMAIL_SENDER = os.getenv("MAILTO")
+EMAIL_LOGIN = os.getenv("MAIL_LOGIN_UB")
+EMAIL_PASSWORD = os.getenv("MAIL_PWD_UB")
+EMAIL_RECEIVER = os.getenv("MAILTO")
+
+
 #On initialise le logger
 logs.init_logs(os.getenv('LOGS_PATH'),SERVICE,'DEBUG')
 logger = logging.getLogger(SERVICE)
+
+# Envoi d'email
+def send_email(subject, body, attachment=None):
+    msg = MIMEMultipart()
+    msg['From'] = EMAIL_SENDER
+    msg['To'] = EMAIL_RECEIVER
+    msg['Subject'] = subject
+
+    msg.attach(MIMEText(body, 'plain'))
+
+    if attachment:
+        with open(attachment, "rb") as att:
+            part = MIMEBase('application', 'octet-stream')
+            part.set_payload(att.read())
+        encoders.encode_base64(part)
+        part.add_header('Content-Disposition', f"attachment; filename={os.path.basename(attachment)}")
+        msg.attach(part)
+
+    with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as server:
+        server.starttls()
+        server.login(EMAIL_LOGIN, EMAIL_PASSWORD)
+        server.send_message(msg)
+
+
 
 date_traitement = date.today() - timedelta(days=TIME_DELTA)
 logger.debug(date_traitement)
@@ -82,8 +119,11 @@ for institution, rcr in INSTITUTIONS_LIST.items():
             logger.info("{} :: NON SIGNALEE AU RESEAU :: {} ".format(erreur["portfolio"][-16:],erreur['code_abes']))
             LIST_ERROR_ADM.append(" {} :: {} :: {}".format(institution, erreur['code_abes'] , erreur['note']))
 # Envoi du rapport d'erreur à l'administrateur
-msg = mail.Mail()
-if len(LIST_ERROR_ADM) > 0 :
-    msg.envoie(os.getenv('ADMIN_MAIL'),os.getenv('ADMIN_MAIL'),"[{}] : erreurs rencontrées".format(SERVICE),"\n".join(LIST_ERROR_ADM))
-else :
-    msg.envoie(os.getenv('ADMIN_MAIL'),os.getenv('ADMIN_MAIL'),"[{}] : service lancé avec succés".format(SERVICE),"Tudo bem\n" )
+if len(LIST_ERROR_ADM) > 0:
+    subject = "Contrôle de la création des inventaires dans le SUDOC : ERREURS DETECTEES"
+    body = f"{len(LIST_ERROR_ADM)} inventaires n'ont pas pu être créées. Voici le détail :\n\n" + "\n".join(LIST_ERROR_ADM)
+    send_email(subject, body)
+else:
+    subject = "Contrôle de la création des inventaires dans le SUDOC : TUDO BEM"
+    body = "Aucune anomalie n'a été détectée."
+    send_email(subject, body)
